@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import Image from 'next/image';
 import { useAppDispatch, useAppSelector } from "@/store/store";
@@ -14,10 +14,10 @@ const ProducList = () => {
     const list = useAppSelector((state: { product: IProductState }) => state.product.productsState);
     const wishList = useAppSelector((state: { product: IProductState }) => state.product.wishlist);
     const cartList = useAppSelector((state: { product: IProductState }) => state.product.cart);
-    const loading = useAppSelector((state: { product: IProductState }) => state.product.loading);
     const [currentPage, setCurrentPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentList, setCurrentList] = useState<IProduct[]>([]);
+
 
     const getData = async () => {
         const data = await getAllProduct();
@@ -34,7 +34,7 @@ const ProducList = () => {
                 draggable: true,
                 theme: "dark",
             });
-        }
+     }
     };
     useEffect(() => {
         getData();
@@ -45,13 +45,15 @@ const ProducList = () => {
     const totalPages = Math.ceil(list.length / 10);
 
     // Function to get the items for the current page
-    const getCurrentPageData = (currentPage: number) => {
+    const getCurrentPageData = useCallback((currentPage: number) => {
         const start = (currentPage - 1) * 10;
         const end = start + 10;
         const newData = list.slice(start, end);
         setCurrentList(newData);
-    };
-
+    },[list]);
+    useEffect(() => {
+        getCurrentPageData(1);
+    },[getCurrentPageData, list]);
     // Filter data based on the search term
     const filteredData = (searchTerm: string) => {
         setSearchTerm(searchTerm);
@@ -90,9 +92,13 @@ const ProducList = () => {
             dispatch(addToCartProductsState(product));
         }
     }
+    const handleDeleteProduct = (product: IProduct) => {
+        dispatch(deleteProductstate(product));
+    }
+
     return (
 
-        (list && !loading) ? <>
+        (list) ? <>
             <SearchBox searchTerm={searchTerm} onSearch={(val)=> filteredData(val)} />
             <div className="overflow-x-auto my-8 mx-2">
                 <table className="table-auto border-collapse border  w-full text-sm text-left text-gray-500 ">
@@ -178,7 +184,7 @@ const ProducList = () => {
                                             {cartList.some(item => item.id === product.id) ? 'Remove from Cart' : 'Add to Cart'}
                                         </a>
                                         <br />
-                                        <a onClick={() => dispatch(deleteProductstate(product))} type="button" className="font-medium text-red-600 m-2  hover:underline hover:cursor-pointer">Delete </a>
+                                        <a onClick={() => handleDeleteProduct(product)} type="button" className="font-medium text-red-600 m-2  hover:underline hover:cursor-pointer">Delete </a>
                                     </td>
                                 </tr>
                             )
@@ -214,7 +220,7 @@ const ProducList = () => {
                 pauseOnHover
                 theme="dark"
             /></>
-            : <h3>Loading...!</h3>
+            : null
 
     );
 };
