@@ -32,7 +32,7 @@ export const productSlice = createSlice({
     addWishListProductsState: (state:any, action: PayloadAction<IProduct>) => {
       state.loading = true;
       state.wishlist = [...state.wishlist, action.payload];
-      localStorage.setItem('wishList', JSON.stringify(action.payload));
+      localStorage.setItem('wishList', JSON.stringify(state.wishlist));
       state.loading = false;
     },
     deleteWishListProductstate: (state:any, action: PayloadAction<IProduct>) => {
