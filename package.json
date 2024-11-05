@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "server": "json-server --watch api/db.json --port 5002"
+    "server": "json-server --watch api/db.json --port 5000"
   },
   "dependencies": {
     "@heroicons/react": "v1",
